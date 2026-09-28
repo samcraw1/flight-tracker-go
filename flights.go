@@ -41,3 +41,21 @@ func FetchFlight(callsign string) ([]any, error) {
 	}
 	return nil, fmt.Errorf("flight %q not found", callsign)
 }
+
+func FetchAll() ([][]any, error) {
+	res, err := client.Get("https://opensky-network.org/api/states/all")
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status: %s", res.Status)
+	}
+
+	var data Response
+	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
+		return nil, err
+	}
+	return data.States, nil
+}
