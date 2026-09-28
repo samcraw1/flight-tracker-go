@@ -1,22 +1,34 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
 	"os"
-	"strings"
+	"time"
 )
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Enter flight callsign (e.g. UAL123):")
-	scanner.Scan()
-	callsign := strings.TrimSpace(scanner.Text())
+	callsign := flag.String("callsign", "", "flight callsign e.g.AAL1008")
+	watch := flag.Bool("watch", false, "keep refreshing every 10 seconds")
+	flag.Parse()
 
-	flight, err := FetchFlight(callsign)
-	if err != nil {
-		fmt.Println("Error fetching flight:", err)
-		return
+	if *callsign == "" && flag.NArg() > 0 {
+		*callsign = flag.Arg(0)
 	}
-	PrintFlight(flight)
+	if *callsign == "" {
+		fmt.Println("usage: flighttracker [--watch] <callsign>")
+		os.Exit(1)
+	}
+	for {
+		flight, err := FetchFlight(*callsign)
+		if err != nil {
+			fmt.Println("error:", err)
+		} else {
+			PrintFlight(flight)
+		}
+		if !*watch {
+			break
+		}
+		time.Sleep(10 * time.Second)
+	}
 }
