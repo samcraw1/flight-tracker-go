@@ -11,10 +11,20 @@ func main() {
 	callsign := flag.String("callsign", "", "flight callsign e.g.AAL1008")
 	watch := flag.Bool("watch", false, "keep refreshing every 10 seconds")
 	all := flag.Bool("all", false, "print every tracked aircraft")
+	serve := flag.Bool("serve", false, "run the JSON API for the web frontend")
+	addr := flag.String("addr", ":8787", "listen address for --serve")
 	flag.Parse()
 
+	if *serve {
+		if err := Serve(*addr); err != nil {
+			fmt.Println("error:", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	if *all {
-		allFlights, err := FetchAll()
+		allFlights, err := FetchAll("")
 		if err != nil {
 			fmt.Println("error:", err)
 			os.Exit(1)

@@ -42,8 +42,14 @@ func FetchFlight(callsign string) ([]any, error) {
 	return nil, fmt.Errorf("flight %q not found", callsign)
 }
 
-func FetchAll() ([][]any, error) {
-	res, err := client.Get("https://opensky-network.org/api/states/all")
+// FetchAll returns every tracked aircraft. query is an optional raw query
+// string (e.g. a bounding box) passed through to OpenSky.
+func FetchAll(query string) ([][]any, error) {
+	url := "https://opensky-network.org/api/states/all"
+	if query != "" {
+		url += "?" + query
+	}
+	res, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}

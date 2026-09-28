@@ -1,2 +1,4 @@
 flighttracker
 .DS_Store
+web/node_modules
+web/dist
